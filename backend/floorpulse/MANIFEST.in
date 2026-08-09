@@ -1,0 +1,5 @@
+include floorpulse/templates/*
+recursive-include floorpulse/public *
+recursive-include floorpulse/templates *
+recursive-include floorpulse/www *
+recursive-include floorpulse/translations *

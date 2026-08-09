@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment / secrets
+.env
+*.env.local
+*.env.production
+
+# ERPNext / Frappe
+# Bench-managed files — not part of the app itself
+*.bench
+site_config.json
+
+# Frappe fixtures (uncomment if you don't want to track fixtures)
+# **/fixtures/*.json
+
+# Compiled translations
+locale/*/LC_MESSAGES/*.mo
+
+# Node (used by Frappe build tools)
+node_modules/
+.npm/
+*.bundle.js
+*.bundle.css
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
