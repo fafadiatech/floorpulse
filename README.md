@@ -1,5 +1,9 @@
 # FloorPulse
 
+<p align="center">
+  <img src="logo.png" width="400"/>
+</p>
+
 **Field operations platform for sales, maintenance, warehouse, and quality control teams.**
 
 FloorPulse connects your field teams to your business — in real time, on their phones, without paper or manual reporting. It runs on top of ERPNext so every field activity automatically flows into your existing ERP workflows.
