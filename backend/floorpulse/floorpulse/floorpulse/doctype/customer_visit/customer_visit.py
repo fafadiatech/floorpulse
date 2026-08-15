@@ -9,4 +9,5 @@ class CustomerVisit(Document):
                 frappe.throw("Check-Out Time cannot be before Check-In Time.")
 
     def on_submit(self):
-        self.status = "Completed"
+        if self.status not in ("Missed", "Cancelled"):
+            self.status = "Completed"

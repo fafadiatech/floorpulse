@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "autoname": "FP-PTP-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "sales_invoice",
+  "promise_amount",
+  "expected_date",
+  "payment_mode",
+  "status",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "promise_amount",
+   "fieldtype": "Currency",
+   "label": "Promise Amount",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "expected_date",
+   "fieldtype": "Date",
+   "label": "Expected Payment Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Select",
+   "label": "Payment Mode",
+   "options": "NEFT\nCheque\nRTGS\nUPI\nCash",
+   "default": "NEFT",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nKept\nBroken",
+   "default": "Open",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "Promise to Pay",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "expected_date",
+ "sort_order": "ASC",
+ "title_field": "customer",
+ "track_changes": 1
+}

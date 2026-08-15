@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "autoname": "FP-VS-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "supplier",
+  "period_from",
+  "period_to",
+  "quality_score",
+  "delivery_score",
+  "overall_score",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "period_from",
+   "fieldtype": "Date",
+   "label": "Period From",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "period_to",
+   "fieldtype": "Date",
+   "label": "Period To"
+  },
+  {
+   "fieldname": "quality_score",
+   "fieldtype": "Float",
+   "label": "Quality Score",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "delivery_score",
+   "fieldtype": "Float",
+   "label": "Delivery Score"
+  },
+  {
+   "fieldname": "overall_score",
+   "fieldtype": "Float",
+   "label": "Overall Score",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text Editor",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "Vendor Scorecard",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "supplier",
+ "track_changes": 1
+}

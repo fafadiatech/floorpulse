@@ -54,6 +54,56 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Lead",
+   "link_count": 0,
+   "link_to": "Lead",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation",
+   "link_count": 0,
+   "link_to": "Quotation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Memo",
+   "link_count": 0,
+   "link_to": "Sales Memo",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Promise to Pay",
+   "link_count": 0,
+   "link_to": "Promise to Pay",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Complaint",
+   "link_count": 0,
+   "link_to": "Customer Complaint",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Maintenance",
    "link_count": 0,
    "onboard": 0,
@@ -62,9 +112,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Maintenance Job",
+   "label": "Asset Repair",
    "link_count": 0,
-   "link_to": "Maintenance Job",
+   "link_to": "Asset Repair",
    "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
@@ -82,10 +132,50 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Asset Maintenance Log",
+   "link_count": 0,
+   "link_to": "Asset Maintenance Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Asset",
    "link_count": 0,
    "link_to": "Asset",
    "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "LOTO",
+   "link_count": 0,
+   "link_to": "LOTO",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Calibration",
+   "link_count": 0,
+   "link_to": "Calibration",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Downtime Log",
+   "link_count": 0,
+   "link_to": "Downtime Log",
+   "link_type": "Report",
    "onboard": 0,
    "type": "Link"
   },
@@ -120,6 +210,76 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Pick List",
+   "link_count": 0,
+   "link_to": "Pick List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Entry",
+   "link_count": 0,
+   "link_to": "Stock Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Reconciliation",
+   "link_count": 0,
+   "link_to": "Stock Reconciliation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Note",
+   "link_count": 0,
+   "link_to": "Delivery Note",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Gate Entry",
+   "link_count": 0,
+   "link_to": "Gate Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Return",
+   "link_count": 0,
+   "link_to": "Material Return",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Subcontract Challan",
+   "link_count": 0,
+   "link_to": "Subcontract Challan",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Quality Control",
    "link_count": 0,
    "onboard": 0,
@@ -128,15 +288,111 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "QC Inspection",
+   "label": "Quality Inspection",
    "link_count": 0,
-   "link_to": "QC Inspection",
+   "link_to": "Quality Inspection",
    "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "NCR",
+   "link_count": 0,
+   "link_to": "NCR",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vendor Scorecard",
+   "link_count": 0,
+   "link_to": "Vendor Scorecard",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Calibration",
+   "link_count": 0,
+   "link_to": "Calibration",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quality Hold",
+   "link_count": 0,
+   "link_to": "Quality Hold",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Pareto Analysis",
+   "link_count": 0,
+   "link_to": "Pareto Analysis",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Production",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Work Order",
+   "link_count": 0,
+   "link_to": "Work Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Job Card",
+   "link_count": 0,
+   "link_to": "Job Card",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Alerts",
+   "link_count": 0,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "FloorPulse Notification",
+   "link_count": 0,
+   "link_to": "FloorPulse Notification",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-01-01 00:00:00.000000",
+ "modified": "2026-08-15 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "FloorPulse",
  "name": "FloorPulse",

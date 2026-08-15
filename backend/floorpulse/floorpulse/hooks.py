@@ -38,6 +38,6 @@ after_migrate = "floorpulse.setup.install.after_migrate"
 #     ],
 # }
 
-# REST API — whitelisted methods
+# REST API — custom methods live in floorpulse.api.*
 # --------------------------------
 # override_whitelisted_methods = {}

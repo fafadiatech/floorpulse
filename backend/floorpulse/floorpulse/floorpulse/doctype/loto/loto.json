@@ -1,65 +1,81 @@
 {
  "actions": [],
- "autoname": "FP-WT-.YYYY.-.#####",
- "creation": "2024-01-01 00:00:00.000000",
+ "autoname": "FP-LOTO-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "task_type",
-  "warehouse",
-  "assigned_to",
-  "due_date",
+  "asset",
+  "asset_name",
+  "technician",
   "status",
+  "lock_id",
+  "section_times",
+  "applied_on",
+  "removed_on",
   "section_ref",
   "reference_doctype",
   "reference_document",
-  "source_bin",
-  "target_bin",
   "section_notes",
-  "notes"
+  "isolation_notes"
  ],
  "fields": [
   {
-   "fieldname": "task_type",
-   "fieldtype": "Select",
-   "label": "Task Type",
-   "options": "\nGRN\nPut-Away\nIssue\nPicking\nCycle Count\nStock Transfer\nReturns Processing",
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset",
+   "options": "Asset",
    "reqd": 1,
    "in_list_view": 1
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse",
-   "reqd": 1,
-   "in_list_view": 1
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "fetch_from": "asset.asset_name",
+   "read_only": 1
   },
   {
-   "fieldname": "assigned_to",
+   "fieldname": "technician",
    "fieldtype": "Link",
-   "label": "Assigned To",
-   "options": "User",
+   "label": "Technician",
+   "options": "Employee",
    "in_list_view": 1
-  },
-  {
-   "fieldname": "due_date",
-   "fieldtype": "Datetime",
-   "label": "Due Date"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Pending\nIn Progress\nCompleted\nCancelled",
+   "options": "Pending\nApplied\nRemoved",
    "default": "Pending",
+   "reqd": 1,
    "in_list_view": 1
+  },
+  {
+   "fieldname": "lock_id",
+   "fieldtype": "Data",
+   "label": "Lock / Tag ID"
+  },
+  {
+   "fieldname": "section_times",
+   "fieldtype": "Section Break",
+   "label": "Isolation Window"
+  },
+  {
+   "fieldname": "applied_on",
+   "fieldtype": "Datetime",
+   "label": "Applied On"
+  },
+  {
+   "fieldname": "removed_on",
+   "fieldtype": "Datetime",
+   "label": "Removed On"
   },
   {
    "fieldname": "section_ref",
    "fieldtype": "Section Break",
-   "label": "References"
+   "label": "Work Reference"
   },
   {
    "fieldname": "reference_doctype",
@@ -74,33 +90,22 @@
    "options": "reference_doctype"
   },
   {
-   "fieldname": "source_bin",
-   "fieldtype": "Data",
-   "label": "Source Bin"
-  },
-  {
-   "fieldname": "target_bin",
-   "fieldtype": "Data",
-   "label": "Target Bin"
-  },
-  {
    "fieldname": "section_notes",
    "fieldtype": "Section Break",
-   "label": "Notes"
+   "label": "Isolation Notes"
   },
   {
-   "fieldname": "notes",
+   "fieldname": "isolation_notes",
    "fieldtype": "Text Editor",
-   "label": "Notes"
+   "label": "Isolation Notes"
   }
  ],
  "index_web_pages_for_search": 0,
- "is_submittable": 1,
  "links": [],
- "modified": "2024-01-01 00:00:00.000000",
+ "modified": "2026-08-15 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "FloorPulse",
- "name": "Warehouse Task",
+ "name": "LOTO",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
@@ -112,9 +117,8 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Stock User",
+   "role": "Maintenance User",
    "share": 1,
-   "submit": 1,
    "write": 1
   },
   {
@@ -125,14 +129,13 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Stock Manager",
+   "role": "Maintenance Manager",
    "share": 1,
-   "submit": 1,
    "write": 1
   }
  ],
- "sort_field": "due_date",
- "sort_order": "ASC",
- "title_field": "task_type",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "asset",
  "track_changes": 1
 }

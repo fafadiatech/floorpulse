@@ -16,6 +16,7 @@
   "status",
   "section_notes",
   "notes",
+  "visit_photo",
   "location_latitude",
   "location_longitude"
  ],
@@ -58,20 +59,20 @@
    "fieldname": "purpose",
    "fieldtype": "Select",
    "label": "Purpose",
-   "options": "\nProspecting\nFollow-up\nOrder Collection\nPayment Collection\nComplaint Resolution\nRelationship Building",
+   "options": "\nProspecting\nFollow-up\nDemo\nOrder Collection\nPayment Collection\nComplaint Resolution\nRelationship Building",
    "reqd": 1
   },
   {
    "fieldname": "outcome",
    "fieldtype": "Select",
    "label": "Outcome",
-   "options": "\nOrder Placed\nLead Generated\nPayment Collected\nCallback Scheduled\nNo Action"
+   "options": "\nOrder Placed\nFollow-up Required\nDemo Done\nNo Interest\nLeft Message\nLead Generated\nPayment Collected"
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Planned\nIn Progress\nCompleted\nCancelled",
+   "options": "Planned\nChecked In\nCompleted\nMissed\nCancelled",
    "default": "Planned",
    "in_list_view": 1
   },
@@ -84,6 +85,11 @@
    "fieldname": "notes",
    "fieldtype": "Text Editor",
    "label": "Visit Notes"
+  },
+  {
+   "fieldname": "visit_photo",
+   "fieldtype": "Attach Image",
+   "label": "Visit Photo"
   },
   {
    "fieldname": "location_latitude",
@@ -101,7 +107,7 @@
  "index_web_pages_for_search": 0,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-01 00:00:00.000000",
+ "modified": "2026-08-15 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "FloorPulse",
  "name": "Customer Visit",

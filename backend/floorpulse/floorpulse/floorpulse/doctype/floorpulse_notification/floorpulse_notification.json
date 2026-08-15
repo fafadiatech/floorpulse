@@ -1,0 +1,155 @@
+{
+ "actions": [],
+ "autoname": "FP-NTF-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "body",
+  "for_user",
+  "role_shell",
+  "read",
+  "section_ref",
+  "reference_doctype",
+  "reference_document"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "body",
+   "fieldtype": "Text Editor",
+   "label": "Body"
+  },
+  {
+   "fieldname": "for_user",
+   "fieldtype": "Link",
+   "label": "For User",
+   "options": "User",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "role_shell",
+   "fieldtype": "Select",
+   "label": "Role Shell",
+   "options": "\nproduction\nqc\nwarehouse\nsales\nmaintenance",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "read",
+   "fieldtype": "Check",
+   "label": "Read",
+   "default": "0"
+  },
+  {
+   "fieldname": "section_ref",
+   "fieldtype": "Section Break",
+   "label": "Reference"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Document",
+   "options": "reference_doctype"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "FloorPulse Notification",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Manufacturing User",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Maintenance User",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "title",
+ "track_changes": 1
+}

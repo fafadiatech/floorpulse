@@ -1,0 +1,127 @@
+{
+ "actions": [],
+ "autoname": "FP-CAL-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_name",
+  "instrument_id",
+  "due_date",
+  "calibrated_on",
+  "result",
+  "next_due_date",
+  "certificate",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset",
+   "options": "Asset",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "fetch_from": "asset.asset_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "instrument_id",
+   "fieldtype": "Data",
+   "label": "Instrument ID"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "calibrated_on",
+   "fieldtype": "Date",
+   "label": "Calibrated On"
+  },
+  {
+   "fieldname": "result",
+   "fieldtype": "Select",
+   "label": "Result",
+   "options": "Pending\nPass\nFail",
+   "default": "Pending",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "next_due_date",
+   "fieldtype": "Date",
+   "label": "Next Due Date"
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Attach",
+   "label": "Certificate"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "Calibration",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Maintenance User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Maintenance Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "due_date",
+ "sort_order": "ASC",
+ "title_field": "asset",
+ "track_changes": 1
+}

@@ -1,0 +1,203 @@
+{
+ "actions": [],
+ "autoname": "FP-NCR-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "item_name",
+  "quality_inspection",
+  "reference_doctype",
+  "reference_document",
+  "raised_by",
+  "raised_date",
+  "severity",
+  "status",
+  "section_defect",
+  "defect_type",
+  "quantity_rejected",
+  "disposition",
+  "notes",
+  "section_capa",
+  "root_cause",
+  "corrective_action",
+  "preventive_action",
+  "capa_owner",
+  "capa_due_date",
+  "capa_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "fetch_from": "item_code.item_name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quality_inspection",
+   "fieldtype": "Link",
+   "label": "Quality Inspection",
+   "options": "Quality Inspection"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Document",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "raised_by",
+   "fieldtype": "Link",
+   "label": "Raised By",
+   "options": "User",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "raised_date",
+   "fieldtype": "Date",
+   "label": "Raised Date",
+   "reqd": 1,
+   "default": "Today",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "label": "Severity",
+   "options": "Minor\nMajor\nCritical",
+   "default": "Major",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nUnder Review\nCAPA Raised\nClosed",
+   "default": "Open",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_defect",
+   "fieldtype": "Section Break",
+   "label": "Defect"
+  },
+  {
+   "fieldname": "defect_type",
+   "fieldtype": "Data",
+   "label": "Defect Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity_rejected",
+   "fieldtype": "Int",
+   "label": "Quantity Rejected",
+   "reqd": 1,
+   "default": "1"
+  },
+  {
+   "fieldname": "disposition",
+   "fieldtype": "Select",
+   "label": "Disposition",
+   "options": "\nRework\nScrap\nAccept As-Is\nReturn to Supplier"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "section_capa",
+   "fieldtype": "Section Break",
+   "label": "CAPA"
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Text Editor",
+   "label": "Root Cause"
+  },
+  {
+   "fieldname": "corrective_action",
+   "fieldtype": "Text Editor",
+   "label": "Corrective Action"
+  },
+  {
+   "fieldname": "preventive_action",
+   "fieldtype": "Text Editor",
+   "label": "Preventive Action"
+  },
+  {
+   "fieldname": "capa_owner",
+   "fieldtype": "Link",
+   "label": "CAPA Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "capa_due_date",
+   "fieldtype": "Date",
+   "label": "CAPA Due Date"
+  },
+  {
+   "fieldname": "capa_status",
+   "fieldtype": "Select",
+   "label": "CAPA Status",
+   "options": "\nOpen\nIn Progress\nClosed\nOverdue"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "NCR",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "raised_date",
+ "sort_order": "DESC",
+ "title_field": "item_code",
+ "track_changes": 1
+}

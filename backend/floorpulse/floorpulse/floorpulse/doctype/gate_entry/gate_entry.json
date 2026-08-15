@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "autoname": "FP-GE-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "entry_time",
+  "vehicle_number",
+  "driver_name",
+  "party",
+  "purpose",
+  "status",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "entry_time",
+   "fieldtype": "Datetime",
+   "label": "Entry Time",
+   "default": "Now",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "vehicle_number",
+   "fieldtype": "Data",
+   "label": "Vehicle Number",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Data",
+   "label": "Supplier / Party",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "Delivery\nCollection\nService\nVisitor\nEmpty Return",
+   "default": "Delivery",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nClosed",
+   "default": "Open",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text Editor",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "Gate Entry",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "entry_time",
+ "sort_order": "DESC",
+ "title_field": "vehicle_number",
+ "track_changes": 1
+}

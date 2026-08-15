@@ -1,2 +1,7 @@
 # Patches are applied in order. Add new patches at the bottom.
-# Format: floorpulse.patches.patch_module.execute
+# Format: floorpulse.patches.patch_module
+
+[pre_model_sync]
+
+[post_model_sync]
+floorpulse.patches.v1_0.retire_duplicate_doctypes

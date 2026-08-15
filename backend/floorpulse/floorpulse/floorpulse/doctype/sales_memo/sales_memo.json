@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "autoname": "FP-MEMO-.YYYY.-.#####",
+ "creation": "2026-08-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "memo_type",
+  "content",
+  "customer",
+  "product_interest",
+  "sales_person"
+ ],
+ "fields": [
+  {
+   "fieldname": "memo_type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Voice\nNote",
+   "default": "Note",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Text Editor",
+   "label": "Content",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "product_interest",
+   "fieldtype": "Data",
+   "label": "Product Interest"
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "Sales Person",
+   "in_list_view": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-08-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "FloorPulse",
+ "name": "Sales Memo",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "customer",
+ "track_changes": 1
+}

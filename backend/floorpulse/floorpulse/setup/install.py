@@ -3,11 +3,13 @@ import frappe
 
 def after_install():
     _create_custom_fields()
+    _delete_obsolete_custom_fields()
     _hide_other_workspaces()
 
 
 def after_migrate():
     _create_custom_fields()
+    _delete_obsolete_custom_fields()
     _hide_other_workspaces()
 
 
@@ -30,6 +32,23 @@ def _create_custom_fields():
     create_custom_fields(CUSTOM_FIELDS, ignore_validate=True)
 
 
+def _delete_obsolete_custom_fields():
+    """Remove custom fields retired in favor of ERPNext built-ins."""
+    for dt, fieldname in OBSOLETE_CUSTOM_FIELDS:
+        name = frappe.db.get_value(
+            "Custom Field", {"dt": dt, "fieldname": fieldname}, "name"
+        )
+        if name:
+            frappe.delete_doc("Custom Field", name, force=1, ignore_permissions=True)
+
+
+OBSOLETE_CUSTOM_FIELDS = [
+    ("Customer", "fp_credit_limit"),
+    ("Customer", "fp_payment_terms"),
+    ("Sales Order", "fp_approval_status"),
+]
+
+
 # Custom fields added to standard ERPNext DocTypes to support FloorPulse workflows.
 # Each entry is a list of field dicts accepted by Frappe's create_custom_fields().
 CUSTOM_FIELDS = {
@@ -42,19 +61,6 @@ CUSTOM_FIELDS = {
             "options": "\nRetail\nWholesale\nEnterprise\nGovernment",
             "insert_after": "customer_type",
         },
-        {
-            "fieldname": "fp_credit_limit",
-            "label": "Credit Limit",
-            "fieldtype": "Currency",
-            "insert_after": "fp_segment",
-        },
-        {
-            "fieldname": "fp_payment_terms",
-            "label": "Payment Terms (Days)",
-            "fieldtype": "Int",
-            "default": "30",
-            "insert_after": "fp_credit_limit",
-        },
     ],
     # ── Sales Order ───────────────────────────────────────────────────────────
     "Sales Order": [
@@ -65,16 +71,8 @@ CUSTOM_FIELDS = {
             "options": "Customer Visit",
             "insert_after": "customer",
         },
-        {
-            "fieldname": "fp_approval_status",
-            "label": "Field Approval Status",
-            "fieldtype": "Select",
-            "options": "\nPending\nApproved\nRejected",
-            "default": "Pending",
-            "insert_after": "fp_visit_reference",
-        },
     ],
-    # ── Maintenance Visit ─────────────────────────────────────────────────────
+    # ── Maintenance Visit (customer-site PM / field service) ──────────────────
     "Maintenance Visit": [
         {
             "fieldname": "fp_technician",
@@ -88,6 +86,50 @@ CUSTOM_FIELDS = {
             "label": "Checklist Completed",
             "fieldtype": "Check",
             "insert_after": "fp_technician",
+        },
+        {
+            "fieldname": "fp_customer_signature",
+            "label": "Customer Signature",
+            "fieldtype": "Attach Image",
+            "insert_after": "fp_checklist_completed",
+        },
+    ],
+    # ── Asset Repair (breakdown jobs) ─────────────────────────────────────────
+    "Asset Repair": [
+        {
+            "fieldname": "fp_signoff_section",
+            "label": "FloorPulse Sign-Off",
+            "fieldtype": "Section Break",
+            "insert_after": "actions_performed",
+            "collapsible": 1,
+        },
+        {
+            "fieldname": "fp_technician",
+            "label": "Assigned Technician",
+            "fieldtype": "Link",
+            "options": "Employee",
+            "insert_after": "fp_signoff_section",
+        },
+        {
+            "fieldname": "fp_checklist_completed",
+            "label": "Checklist Completed",
+            "fieldtype": "Check",
+            "insert_after": "fp_technician",
+        },
+        {
+            "fieldname": "fp_customer_signature",
+            "label": "Customer Signature",
+            "fieldtype": "Attach Image",
+            "insert_after": "fp_checklist_completed",
+        },
+    ],
+    # ── Asset Maintenance Log (scheduled PM) ──────────────────────────────────
+    "Asset Maintenance Log": [
+        {
+            "fieldname": "fp_checklist_completed",
+            "label": "Checklist Completed",
+            "fieldtype": "Check",
+            "insert_after": "actions_performed",
         },
         {
             "fieldname": "fp_customer_signature",
@@ -112,10 +154,16 @@ CUSTOM_FIELDS = {
             "insert_after": "fp_asset_tag",
         },
         {
+            "fieldname": "fp_meter_readings",
+            "label": "Named Meter Readings",
+            "fieldtype": "JSON",
+            "insert_after": "fp_meter_reading",
+        },
+        {
             "fieldname": "fp_next_pm_date",
             "label": "Next PM Date",
             "fieldtype": "Date",
-            "insert_after": "fp_meter_reading",
+            "insert_after": "fp_meter_readings",
         },
     ],
     # ── Purchase Receipt ──────────────────────────────────────────────────────
@@ -126,6 +174,40 @@ CUSTOM_FIELDS = {
             "fieldtype": "Link",
             "options": "Warehouse Task",
             "insert_after": "supplier",
+        },
+    ],
+    # ── Delivery Note (packing cartons / weight) ──────────────────────────────
+    "Delivery Note": [
+        {
+            "fieldname": "fp_packing_section",
+            "label": "Packing",
+            "fieldtype": "Section Break",
+            "insert_after": "lr_date",
+            "collapsible": 1,
+        },
+        {
+            "fieldname": "fp_carton_count",
+            "label": "No. of Cartons",
+            "fieldtype": "Int",
+            "insert_after": "fp_packing_section",
+        },
+        {
+            "fieldname": "fp_gross_weight",
+            "label": "Gross Weight (kg)",
+            "fieldtype": "Float",
+            "insert_after": "fp_carton_count",
+        },
+        {
+            "fieldname": "fp_cartons_sealed",
+            "label": "Cartons Sealed",
+            "fieldtype": "Check",
+            "insert_after": "fp_gross_weight",
+        },
+        {
+            "fieldname": "fp_labels_affixed",
+            "label": "Shipping Labels Affixed",
+            "fieldtype": "Check",
+            "insert_after": "fp_cartons_sealed",
         },
     ],
 }
