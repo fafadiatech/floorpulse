@@ -2,6 +2,9 @@
 import sys
 from unittest.mock import MagicMock
 
+# Frappe integration tests live in test_api.py and run via `make test-api`.
+collect_ignore = ["floorpulse/api/test_api.py"]
+
 
 class FrappeTestError(Exception):
     pass

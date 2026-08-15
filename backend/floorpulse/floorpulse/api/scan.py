@@ -12,6 +12,11 @@ SCAN_FALLBACKS = (
     ("Purchase Order", "name"),
     ("Bin", "name"),
     ("Warehouse Task", "name"),
+    ("Quality Inspection", "name"),
+    ("Asset Repair", "name"),
+    ("NCR", "name"),
+    ("Gate Entry", "name"),
+    ("Gate Entry", "vehicle_number"),
 )
 
 LABEL_FIELDS = {
@@ -24,6 +29,10 @@ LABEL_FIELDS = {
     "Item": "item_name",
     "Batch": "item",
     "Serial No": "item_code",
+    "Quality Inspection": "item_code",
+    "Asset Repair": "asset_name",
+    "NCR": "defect_type",
+    "Gate Entry": "vehicle_number",
 }
 
 
@@ -65,6 +74,17 @@ def _exists(doctype, filters):
         return None
 
 
+def _permitted_hit(hit):
+    if not hit:
+        return None
+    try:
+        if not frappe.has_permission(hit["doctype"], "read", doc=hit["name"]):
+            return None
+    except Exception:
+        return None
+    return hit
+
+
 def resolve_code(code):
     code = (code or "").strip()
     if not code:
@@ -77,18 +97,25 @@ def resolve_code(code):
         if barcode_hit:
             if barcode_hit["doctype"] == "Item":
                 barcode_hit["label"] = _label_for("Item", barcode_hit["name"])
-            return barcode_hit
+            permitted = _permitted_hit(barcode_hit)
+            if permitted:
+                return permitted
     except Exception:
         pass
 
     for doctype, field in SCAN_FALLBACKS:
         filters = code if field == "name" else {field: code}
         name = _exists(doctype, filters)
-        if name:
-            extra = {}
-            if doctype == "Asset":
-                extra["asset_tag"] = frappe.db.get_value(doctype, name, "fp_asset_tag")
-            return scan_hit(doctype, doctype, name, _label_for(doctype, name), extra)
+        if not name:
+            continue
+        extra = {}
+        if doctype == "Asset":
+            extra["asset_tag"] = frappe.db.get_value(doctype, name, "fp_asset_tag")
+        if doctype == "Gate Entry":
+            extra["vehicle_number"] = frappe.db.get_value(doctype, name, "vehicle_number")
+        hit = _permitted_hit(scan_hit(doctype, doctype, name, _label_for(doctype, name), extra))
+        if hit:
+            return hit
 
     return None
 

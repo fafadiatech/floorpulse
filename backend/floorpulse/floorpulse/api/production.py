@@ -1,5 +1,5 @@
 import frappe
-from frappe.utils import now_datetime, time_diff_in_hours
+from frappe.utils import cint, now_datetime, time_diff_in_hours
 
 from floorpulse.api.utils import require_permission
 
@@ -45,7 +45,7 @@ def start_job(job_card):
 
 
 @frappe.whitelist()
-def complete_job(job_card, completed_qty=None):
+def complete_job(job_card, completed_qty=None, submit=0):
     jc = frappe.get_doc("Job Card", job_card)
     require_permission("Job Card", "write", jc)
 
@@ -60,10 +60,19 @@ def complete_job(job_card, completed_qty=None):
     if open_log.from_time:
         open_log.time_in_mins = time_diff_in_hours(to_time, open_log.from_time) * 60
 
-    jc.save()
-    return {
-        "job_card": jc.name,
-        "status": jc.status,
-        "to_time": str(to_time),
-        "completed_qty": open_log.completed_qty,
-    }
+    if cint(submit):
+        require_permission("Job Card", "submit", jc)
+
+    try:
+        jc.save()
+        if cint(submit):
+            jc.submit()
+        return {
+            "job_card": jc.name,
+            "status": jc.status,
+            "to_time": str(to_time),
+            "completed_qty": open_log.completed_qty,
+        }
+    except Exception:
+        frappe.db.rollback()
+        raise

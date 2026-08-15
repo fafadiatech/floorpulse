@@ -21,11 +21,22 @@ def ratio_pct(numerator, denominator, digits=1):
     return round(float(numerator) / float(denominator) * 100.0, digits)
 
 
+def _can_read(doctype):
+    try:
+        return bool(frappe.has_permission(doctype, "read"))
+    except Exception:
+        return False
+
+
 def _count(doctype, filters=None):
+    if not _can_read(doctype):
+        return 0
     return frappe.db.count(doctype, filters or {}) or 0
 
 
-def _sql_value(query, values=None, default=0):
+def _sql_value(query, values=None, default=0, doctype=None):
+    if doctype and not _can_read(doctype):
+        return default
     rows = frappe.db.sql(query, values or ())
     if not rows or rows[0][0] is None:
         return default
@@ -41,7 +52,21 @@ def _month_start(day=None):
     return day.replace(day=1)
 
 
+def _unread_notifications():
+    if not _can_read("FloorPulse Notification"):
+        return 0
+    return (
+        frappe.db.count(
+            "FloorPulse Notification",
+            {"for_user": frappe.session.user, "read": 0},
+        )
+        or 0
+    )
+
+
 def _stock_alert_count():
+    if not (_can_read("Bin") or _can_read("Item")):
+        return 0
     return _sql_value(
         """
         SELECT COUNT(*)
@@ -54,28 +79,32 @@ def _stock_alert_count():
 
 
 def production_kpis():
-    produced, planned = frappe.db.sql(
-        """
-        SELECT IFNULL(SUM(produced_qty), 0), IFNULL(SUM(qty), 0)
-        FROM `tabWork Order`
-        WHERE docstatus < 2 AND status NOT IN ('Stopped', 'Closed')
-        """
-    )[0]
-    on_time, total_dn = frappe.db.sql(
-        """
-        SELECT
-            IFNULL(SUM(CASE WHEN dn.posting_date <= so.delivery_date THEN 1 ELSE 0 END), 0),
-            COUNT(*)
-        FROM `tabDelivery Note` dn
-        INNER JOIN `tabDelivery Note Item` dni ON dni.parent = dn.name
-        INNER JOIN `tabSales Order` so ON so.name = dni.against_sales_order
-        WHERE dn.docstatus = 1
-          AND dn.posting_date >= DATE_SUB(%s, INTERVAL 30 DAY)
-          AND IFNULL(dni.against_sales_order, '') != ''
-          AND so.delivery_date IS NOT NULL
-        """,
-        (today(),),
-    )[0]
+    produced, planned = 0, 0
+    if _can_read("Work Order"):
+        produced, planned = frappe.db.sql(
+            """
+            SELECT IFNULL(SUM(produced_qty), 0), IFNULL(SUM(qty), 0)
+            FROM `tabWork Order`
+            WHERE docstatus < 2 AND status NOT IN ('Stopped', 'Closed')
+            """
+        )[0]
+    on_time, total_dn = 0, 0
+    if _can_read("Delivery Note") and _can_read("Sales Order"):
+        on_time, total_dn = frappe.db.sql(
+            """
+            SELECT
+                IFNULL(SUM(CASE WHEN dn.posting_date <= so.delivery_date THEN 1 ELSE 0 END), 0),
+                COUNT(*)
+            FROM `tabDelivery Note` dn
+            INNER JOIN `tabDelivery Note Item` dni ON dni.parent = dn.name
+            INNER JOIN `tabSales Order` so ON so.name = dni.against_sales_order
+            WHERE dn.docstatus = 1
+              AND dn.posting_date >= DATE_SUB(%s, INTERVAL 30 DAY)
+              AND IFNULL(dni.against_sales_order, '') != ''
+              AND so.delivery_date IS NOT NULL
+            """,
+            (today(),),
+        )[0]
     return {
         "activeWorkOrders": _count(
             "Work Order",
@@ -144,7 +173,8 @@ def sales_kpis():
         """
         SELECT COUNT(*) FROM `tabSales Order`
         WHERE IFNULL(workflow_state, '') != ''
-        """
+        """,
+        doctype="Sales Order",
     )
     if workflow_in_use:
         pending_approvals = _sql_value(
@@ -152,7 +182,8 @@ def sales_kpis():
             SELECT COUNT(*) FROM `tabSales Order`
             WHERE docstatus = 0
               AND IFNULL(workflow_state, '') NOT IN ('', 'Approved')
-            """
+            """,
+            doctype="Sales Order",
         )
     else:
         pending_approvals = _count("Sales Order", {"docstatus": 0, "status": "Draft"})
@@ -166,6 +197,7 @@ def sales_kpis():
           AND posting_date >= %s
         """,
         (_month_start(),),
+        doctype="Payment Entry",
     )
 
     sales_person = None
@@ -208,6 +240,7 @@ def maintenance_kpis():
           AND completion_date IS NOT NULL
         """,
         default=0,
+        doctype="Asset Repair",
     )
     return {
         "machinesDown": _count(
@@ -256,4 +289,5 @@ def get(role=None):
 
     payload = DASHBOARDS[resolved]()
     payload["role"] = resolved
+    payload["unreadNotifications"] = _unread_notifications()
     return payload

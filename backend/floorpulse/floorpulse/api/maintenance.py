@@ -44,12 +44,14 @@ def close_job(asset_repair, signature=None, checklist_completed=None):
         repair.submit()
 
         removed = []
-        for name in frappe.get_all(
+        for row in frappe.get_all(
             "LOTO",
             filters={"asset": repair.asset, "status": "Applied"},
-            pluck="name",
+            fields=["name", "reference_document"],
         ):
-            loto = frappe.get_doc("LOTO", name)
+            if row.reference_document and row.reference_document != repair.name:
+                continue
+            loto = frappe.get_doc("LOTO", row.name)
             require_permission("LOTO", "write", loto)
             loto.status = "Removed"
             loto.save()

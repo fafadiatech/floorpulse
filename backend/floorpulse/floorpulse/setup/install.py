@@ -4,13 +4,22 @@ import frappe
 def after_install():
     _create_custom_fields()
     _delete_obsolete_custom_fields()
+    _reload_floorpulse_workspace()
     _hide_other_workspaces()
 
 
 def after_migrate():
     _create_custom_fields()
     _delete_obsolete_custom_fields()
+    _reload_floorpulse_workspace()
     _hide_other_workspaces()
+
+
+def _reload_floorpulse_workspace():
+    """Re-import the FloorPulse workspace JSON so Desk cards stay in sync."""
+    frappe.reload_doc("FloorPulse", "workspace", "floorpulse", force=True)
+    if frappe.db.exists("Workspace", "FloorPulse"):
+        frappe.db.set_value("Workspace", "FloorPulse", "is_hidden", 0)
 
 
 def _hide_other_workspaces():
@@ -22,8 +31,7 @@ def _hide_other_workspaces():
     )
     for ws in others:
         frappe.db.set_value("Workspace", ws, "is_hidden", 1)
-    if others:
-        frappe.db.commit()
+    frappe.db.commit()
 
 
 def _create_custom_fields():
@@ -174,6 +182,16 @@ CUSTOM_FIELDS = {
             "fieldtype": "Link",
             "options": "Warehouse Task",
             "insert_after": "supplier",
+        },
+    ],
+    # ── Quality Inspection ────────────────────────────────────────────────────
+    "Quality Inspection": [
+        {
+            "fieldname": "fp_verdict",
+            "label": "FloorPulse Verdict",
+            "fieldtype": "Select",
+            "options": "\nPass\nConditional Accept\nReject",
+            "insert_after": "status",
         },
     ],
     # ── Delivery Note (packing cartons / weight) ──────────────────────────────

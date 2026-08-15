@@ -7,7 +7,7 @@ COMPOSE      := docker compose --project-name $(PROJECT_NAME) -f docker-compose.
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build start stop restart logs shell bench setup-site install reset-site nuke seed test migrate
+.PHONY: help build start stop restart logs shell bench setup-site install reset-site nuke seed test test-api migrate
 
 help:
 	@echo ""
@@ -26,7 +26,8 @@ help:
 	@echo "    make logs         Tail logs from all services"
 	@echo "    make shell        Open a bash shell in the backend container"
 	@echo "    make bench CMD=.. Run a bench command (e.g. make bench CMD='list-apps')"
-	@echo "    make test         Run unit tests"
+    @echo "    make test         Run unit tests"
+    @echo "    make test-api     Run FloorPulse API integration tests (Docker / bench)"
 	@echo "    make seed         Seed master/demo data (idempotent, safe to re-run)"
 	@echo "    make migrate      Run bench migrate (apply patches and schema changes)"
 	@echo "    make stop         Stop all services"
@@ -110,6 +111,11 @@ test:
 	@echo ">>> Running unit tests..."
 	cd backend/floorpulse && python3 -m pytest floorpulse/ -v
 	@echo ">>> Tests complete."
+
+test-api:
+	@echo ">>> Running FloorPulse API integration tests..."
+	$(COMPOSE) exec backend bench --site $(SITE_NAME) run-tests --app floorpulse --module floorpulse.api.test_api
+	@echo ">>> API tests complete."
 
 migrate:
 	@echo ">>> Running bench migrate..."

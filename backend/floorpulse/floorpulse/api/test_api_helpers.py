@@ -4,7 +4,8 @@ from floorpulse.api.auth import ROLE_SHELL_MAP, shells_from_roles
 from floorpulse.api.dashboard import TASK_KPI_MAP, ratio_pct, resolve_dashboard_role
 from floorpulse.api.maintenance import normalize_readings, primary_reading
 from floorpulse.api.production import find_open_time_log
-from floorpulse.api.qc import inspection_error
+from floorpulse.api.notifications import SHELL_ROLES
+from floorpulse.api.qc import inspection_error, resolve_verdict
 from floorpulse.api.scan import SCAN_FALLBACKS, from_barcode_scan, scan_hit
 from floorpulse.api.utils import ensure_dict, ensure_list, parse_json
 from floorpulse.api.warehouse import apply_item_lines, task_error
@@ -83,6 +84,11 @@ class TestScanHelpers:
             "Purchase Order.name",
             "Bin.name",
             "Warehouse Task.name",
+            "Quality Inspection.name",
+            "Asset Repair.name",
+            "NCR.name",
+            "Gate Entry.name",
+            "Gate Entry.vehicle_number",
         ]
 
     def test_scan_hit_shape(self):
@@ -113,7 +119,7 @@ class TestWarehouseHelpers:
 
 class TestQCHelpers:
     def test_reject_requires_ncr(self):
-        assert inspection_error("Rejected", {}) 
+        assert inspection_error("Rejected", {})
 
     def test_reject_requires_defect_type(self):
         assert "defect_type" in inspection_error("Rejected", {"quantity_rejected": 1})
@@ -122,7 +128,28 @@ class TestQCHelpers:
         assert inspection_error("Accepted", {}) is None
 
     def test_bad_status(self):
-        assert inspection_error("Pass", {}) 
+        assert inspection_error("Maybe", {})
+
+    def test_verdict_maps_conditional_accept(self):
+        status, verdict, error = resolve_verdict("Accepted", "Conditional Accept")
+        assert error is None
+        assert status == "Accepted"
+        assert verdict == "Conditional Accept"
+
+    def test_verdict_reject_requires_ncr(self):
+        assert inspection_error("Accepted", {}, verdict="Reject")
+
+    def test_conditional_accept_ok(self):
+        assert inspection_error("Accepted", {}, verdict="Conditional Accept") is None
+
+    def test_bad_verdict(self):
+        assert inspection_error("Accepted", {}, verdict="Maybe")
+
+    def test_omitted_verdict_accepted_is_pass(self):
+        status, verdict, error = resolve_verdict("Accepted")
+        assert error is None
+        assert status == "Accepted"
+        assert verdict == "Pass" 
 
 
 class TestProductionHelpers:
@@ -150,6 +177,15 @@ class TestMeterHelpers:
 
     def test_empty_readings(self):
         assert primary_reading({}) is None
+
+
+class TestNotificationHelpers:
+    def test_shell_roles_reverse_map(self):
+        assert "Quality Manager" in SHELL_ROLES["qc"]
+        assert "Stock User" in SHELL_ROLES["warehouse"]
+        assert "Sales User" in SHELL_ROLES["sales"]
+        assert "Maintenance User" in SHELL_ROLES["maintenance"]
+        assert "Manufacturing User" in SHELL_ROLES["production"]
 
 
 class TestJsonUtils:

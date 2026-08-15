@@ -24,19 +24,29 @@ after_migrate = "floorpulse.setup.install.after_migrate"
 
 # Document Events
 # ---------------
-# doc_events = {
-#     "*": {
-#         "on_update": "method",
-#     }
-# }
+doc_events = {
+    "NCR": {
+        "after_insert": "floorpulse.api.notifications.on_ncr_insert",
+    },
+    "Asset Repair": {
+        "after_insert": "floorpulse.api.notifications.on_asset_repair_insert",
+    },
+    "Quality Inspection": {
+        "on_submit": "floorpulse.api.notifications.on_qi_submit",
+    },
+    "Quality Hold": {
+        "after_insert": "floorpulse.api.notifications.on_quality_hold",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
-# scheduler_events = {
-#     "daily": [
-#         "floorpulse.tasks.daily"
-#     ],
-# }
+scheduler_events = {
+    "daily": [
+        "floorpulse.api.notifications.notify_overdue_tasks",
+        "floorpulse.api.notifications.notify_calibration_due",
+    ],
+}
 
 # REST API — custom methods live in floorpulse.api.*
 # --------------------------------

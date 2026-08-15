@@ -199,11 +199,21 @@ HANDLERS = {
 }
 
 
+def _assert_assignee(task_doc):
+    assigned = task_doc.assigned_to
+    if not assigned or assigned == frappe.session.user:
+        return
+    if "Stock Manager" in frappe.get_roles(frappe.session.user):
+        return
+    frappe.throw("Warehouse Task is assigned to another user")
+
+
 @frappe.whitelist()
 def execute_task(task, lines=None):
     lines = ensure_list(lines)
     task_doc = frappe.get_doc("Warehouse Task", task)
     require_permission("Warehouse Task", "submit", task_doc)
+    _assert_assignee(task_doc)
 
     error = task_error(
         task_doc.status, task_doc.docstatus, task_doc.task_type, task_doc.reference_document
@@ -227,6 +237,65 @@ def execute_task(task, lines=None):
             "status": task_doc.status,
             "posted_doctype": posted.doctype,
             "posted_name": posted.name,
+        }
+    except Exception:
+        frappe.db.rollback()
+        raise
+
+
+@frappe.whitelist()
+def dispatch(delivery_note, vehicle_number, driver_name=None):
+    if not vehicle_number:
+        frappe.throw("vehicle_number is required")
+
+    dn = frappe.get_doc("Delivery Note", delivery_note)
+    require_permission("Delivery Note", "submit", dn)
+
+    if dn.docstatus == 1:
+        frappe.throw("Delivery Note is already submitted")
+    if dn.docstatus == 2:
+        frappe.throw("Delivery Note is cancelled")
+
+    try:
+        dn.submit()
+
+        existing = frappe.db.exists(
+            "Gate Entry",
+            {
+                "vehicle_number": vehicle_number,
+                "purpose": "Delivery",
+                "status": "Open",
+            },
+        )
+        remarks = f"Delivery Note {dn.name}"
+        if existing:
+            ge = frappe.get_doc("Gate Entry", existing)
+            require_permission("Gate Entry", "write", ge)
+            ge.status = "Closed"
+            if driver_name:
+                ge.driver_name = driver_name
+            ge.party = dn.customer
+            ge.remarks = f"{ge.remarks}\n{remarks}".strip() if ge.remarks else remarks
+            ge.save()
+        else:
+            require_permission("Gate Entry", "create")
+            ge = frappe.get_doc(
+                {
+                    "doctype": "Gate Entry",
+                    "vehicle_number": vehicle_number,
+                    "driver_name": driver_name,
+                    "party": dn.customer,
+                    "purpose": "Delivery",
+                    "status": "Closed",
+                    "remarks": remarks,
+                }
+            )
+            ge.insert()
+
+        return {
+            "delivery_note": dn.name,
+            "status": "Submitted",
+            "gate_entry": ge.name,
         }
     except Exception:
         frappe.db.rollback()

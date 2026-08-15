@@ -1,7 +1,8 @@
 {
  "charts": [],
- "content": "[]",
+ "content": "[{\"id\":\"fp-header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">FloorPulse</span>\",\"col\":12}},{\"id\":\"fp-card-sales\",\"type\":\"card\",\"data\":{\"card_name\":\"Sales\",\"col\":4}},{\"id\":\"fp-card-maintenance\",\"type\":\"card\",\"data\":{\"card_name\":\"Maintenance\",\"col\":4}},{\"id\":\"fp-card-warehouse\",\"type\":\"card\",\"data\":{\"card_name\":\"Warehouse\",\"col\":4}},{\"id\":\"fp-card-qc\",\"type\":\"card\",\"data\":{\"card_name\":\"Quality Control\",\"col\":4}},{\"id\":\"fp-card-production\",\"type\":\"card\",\"data\":{\"card_name\":\"Production\",\"col\":4}},{\"id\":\"fp-card-alerts\",\"type\":\"card\",\"data\":{\"card_name\":\"Alerts\",\"col\":4}}]",
  "creation": "2024-01-01 00:00:00.000000",
+ "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "extends": null,
@@ -17,7 +18,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Sales",
-   "link_count": 0,
+   "link_count": 8,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -105,7 +106,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Maintenance",
-   "link_count": 0,
+   "link_count": 7,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -183,7 +184,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Warehouse",
-   "link_count": 0,
+   "link_count": 9,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -281,7 +282,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Quality Control",
-   "link_count": 0,
+   "link_count": 6,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -349,7 +350,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Production",
-   "link_count": 0,
+   "link_count": 2,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -377,7 +378,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Alerts",
-   "link_count": 0,
+   "link_count": 1,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -392,7 +393,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-08-15 00:00:00.000000",
+ "modified": "2026-08-15 21:47:00.000000",
  "modified_by": "Administrator",
  "module": "FloorPulse",
  "name": "FloorPulse",
@@ -401,6 +402,7 @@
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
+ "quick_lists": [],
  "restrict_to_domain": null,
  "roles": [],
  "sequence_id": 1.0,
