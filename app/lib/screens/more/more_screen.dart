@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../data/mock_data.dart';
+import '../../api/session.dart';
 import '../../theme/app_theme.dart';
-import '../auth/login_screen.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -12,60 +11,9 @@ class MoreScreen extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text('$feature — coming soon')));
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Log Out',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: const Text(
-          'Are you sure you want to log out of FloorPulse?',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppTheme.textSecondary),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (_) => false,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.danger,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Log Out',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = MockData.currentUser;
+    final user = sessionUser(context);
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -95,7 +43,7 @@ class MoreScreen extends StatelessWidget {
                     radius: 30,
                     backgroundColor: Colors.white.withValues(alpha: 0.25),
                     child: Text(
-                      user['initials']!,
+                      user.initials,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -109,7 +57,7 @@ class MoreScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user['name']!,
+                          user.name,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -118,7 +66,7 @@ class MoreScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          user['role']!,
+                          user.roleLabel,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.85),
                             fontSize: 13,
@@ -126,7 +74,7 @@ class MoreScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${user['department']} • ${user['employeeId']}',
+                          '${user.department} • ${user.employeeId}',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 12,
@@ -215,7 +163,7 @@ class MoreScreen extends StatelessWidget {
                 label: 'Log Out',
                 iconColor: AppTheme.danger,
                 labelColor: AppTheme.danger,
-                onTap: () => _showLogoutDialog(context),
+                onTap: () => confirmLogout(context),
                 showDivider: false,
               ),
             ),

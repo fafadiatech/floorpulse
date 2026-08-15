@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../data/qc_mock_data.dart';
+import '../../../api/session.dart';
 import '../../../theme/app_theme.dart';
-import '../../auth/login_screen.dart';
 import '../scan/traceability_tree_screen.dart';
 
 class QCMoreScreen extends StatelessWidget {
@@ -13,60 +12,9 @@ class QCMoreScreen extends StatelessWidget {
     ).showSnackBar(SnackBar(content: Text('$feature — coming soon')));
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Log Out',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: const Text(
-          'Are you sure you want to log out of FloorPulse?',
-          style: TextStyle(color: AppTheme.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppTheme.textSecondary),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (_) => false,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.danger,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Log Out',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = QCMockData.qcUser;
+    final user = sessionUser(context);
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -220,7 +168,7 @@ class QCMoreScreen extends StatelessWidget {
                 label: 'Log Out',
                 iconColor: AppTheme.danger,
                 labelColor: AppTheme.danger,
-                onTap: () => _showLogoutDialog(context),
+                onTap: () => confirmLogout(context),
                 showDivider: false,
               ),
             ),

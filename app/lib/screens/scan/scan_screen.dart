@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../api/scan_navigator.dart';
 import '../../theme/app_theme.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -12,6 +13,8 @@ class _ScanScreenState extends State<ScanScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  final _codeController = TextEditingController();
+  bool _busy = false;
 
   @override
   void initState() {
@@ -25,18 +28,19 @@ class _ScanScreenState extends State<ScanScreen>
 
   @override
   void dispose() {
+    _codeController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  void _simulateScan() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => const _ScanResultSheet(),
-    );
+  Future<void> _submit() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await resolveAndOpenScan(context, _codeController.text);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -59,27 +63,20 @@ class _ScanScreenState extends State<ScanScreen>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Dimmed overlay background
                   Container(color: Colors.black.withValues(alpha: 0.85)),
-
-                  // Viewfinder
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Instruction
                       const Text(
                         'Position the QR code within the frame',
                         style: TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                       const SizedBox(height: 32),
-
-                      // Scanner frame
                       SizedBox(
                         width: 260,
                         height: 260,
                         child: Stack(
                           children: [
-                            // Scan line
                             AnimatedBuilder(
                               animation: _animation,
                               builder: (context, _) {
@@ -110,21 +107,34 @@ class _ScanScreenState extends State<ScanScreen>
                                 );
                               },
                             ),
-
-                            // Corner brackets
                             ..._buildCorners(),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 40),
-
-                      // Simulate button
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: ScanCodeField(
+                          controller: _codeController,
+                          onSubmit: _submit,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       ElevatedButton.icon(
-                        onPressed: _simulateScan,
-                        icon: const Icon(Icons.qr_code_scanner),
-                        label: const Text(
-                          'Simulate Scan',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                        onPressed: _busy ? null : _submit,
+                        icon: _busy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.qr_code_scanner),
+                        label: Text(
+                          _busy ? 'Resolving…' : 'Resolve Code',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primary,
@@ -141,7 +151,7 @@ class _ScanScreenState extends State<ScanScreen>
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Tap to simulate a QR code scan',
+                        'Enter a document name, barcode, or asset tag',
                         style: TextStyle(color: Colors.white38, fontSize: 12),
                       ),
                     ],
@@ -219,156 +229,4 @@ class _CornerPainter extends CustomPainter {
   @override
   bool shouldRepaint(_CornerPainter old) =>
       old.color != color || old.thickness != thickness;
-}
-
-class _ScanResultSheet extends StatelessWidget {
-  const _ScanResultSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppTheme.success.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle_outline,
-                  color: AppTheme.success,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'QR Code Scanned',
-                    style: TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    'Work order details found',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppTheme.background,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Column(
-              children: [
-                _ResultRow(label: 'Work Order', value: 'WO-2024-001'),
-                SizedBox(height: 10),
-                _ResultRow(label: 'Product', value: 'Hydraulic Pump Assembly'),
-                SizedBox(height: 10),
-                _ResultRow(label: 'Status', value: 'In Progress'),
-                SizedBox(height: 10),
-                _ResultRow(label: 'Location', value: 'Bay 3 - Assembly Line A'),
-                SizedBox(height: 10),
-                _ResultRow(label: 'Assigned To', value: 'Assembly Line A'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.primary,
-                    side: const BorderSide(color: AppTheme.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    'Dismiss',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Opening WO-2024-001 details...'),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'View Work Order',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
-
-class _ResultRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _ResultRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
 }

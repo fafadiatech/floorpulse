@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
-import '../../../data/qc_mock_data.dart';
+import '../../../api/scan_navigator.dart';
 import '../../../theme/app_theme.dart';
-import '../../qc/queue/inspection_detail_screen.dart';
-import 'traceability_tree_screen.dart';
 
-class QCScanScreen extends StatelessWidget {
+class QCScanScreen extends StatefulWidget {
   const QCScanScreen({super.key});
+
+  @override
+  State<QCScanScreen> createState() => _QCScanScreenState();
+}
+
+class _QCScanScreenState extends State<QCScanScreen> {
+  final _codeController = TextEditingController();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await resolveAndOpenScan(context, _codeController.text);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,63 +47,35 @@ class QCScanScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
               const Text(
-                'Select scan type to begin inspection',
+                'Enter a code, then choose a scan type',
                 style: TextStyle(color: Colors.white70, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
-
+              const SizedBox(height: 20),
+              ScanCodeField(controller: _codeController, onSubmit: _submit),
+              const SizedBox(height: 24),
               _ScanOptionCard(
                 icon: Icons.local_shipping_outlined,
                 title: 'GRN QR Scan',
-                subtitle: 'Scan incoming goods receipt for incoming inspection',
-                onSimulate: () {
-                  final item = QCMockData.incomingItems.first;
-                  _showScanAnimation(context, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InspectionDetailScreen(item: item),
-                      ),
-                    );
-                  });
-                },
+                subtitle: 'Incoming inspection for a goods receipt',
+                busy: _busy,
+                onScan: _submit,
               ),
               const SizedBox(height: 16),
-
               _ScanOptionCard(
                 icon: Icons.work_outline,
                 title: 'Job Card QR Scan',
-                subtitle: 'Scan in-process job card for in-process inspection',
-                onSimulate: () {
-                  final item = QCMockData.inProcessItems.first;
-                  _showScanAnimation(context, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => InspectionDetailScreen(item: item),
-                      ),
-                    );
-                  });
-                },
+                subtitle: 'In-process inspection for a job card',
+                busy: _busy,
+                onScan: _submit,
               ),
               const SizedBox(height: 16),
-
               _ScanOptionCard(
                 icon: Icons.qr_code_scanner,
                 title: 'Batch / Serial Scan',
-                subtitle:
-                    'Trace a batch or serial number through the supply chain',
-                onSimulate: () {
-                  _showScanAnimation(context, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const TraceabilityTreeScreen(),
-                      ),
-                    );
-                  });
-                },
+                subtitle: 'Trace a batch or serial through the supply chain',
+                busy: _busy,
+                onScan: _submit,
               ),
             ],
           ),
@@ -89,34 +83,21 @@ class QCScanScreen extends StatelessWidget {
       ),
     );
   }
-
-  void _showScanAnimation(BuildContext context, VoidCallback onComplete) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const _ScanningDialog(),
-    );
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (context.mounted) {
-        Navigator.pop(context); // dismiss dialog
-        onComplete();
-      }
-    });
-  }
 }
 
 class _ScanOptionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback onSimulate;
+  final VoidCallback onScan;
+  final bool busy;
 
   const _ScanOptionCard({
     required this.icon,
     required this.title,
     required this.subtitle,
-    required this.onSimulate,
+    required this.onScan,
+    required this.busy,
   });
 
   @override
@@ -162,7 +143,7 @@ class _ScanOptionCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           ElevatedButton(
-            onPressed: onSimulate,
+            onPressed: busy ? null : onScan,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
@@ -176,28 +157,6 @@ class _ScanOptionCard extends StatelessWidget {
               'Scan',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ScanningDialog extends StatelessWidget {
-  const _ScanningDialog();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Dialog(
-      backgroundColor: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircularProgressIndicator(color: Colors.white),
-          SizedBox(height: 16),
-          Text(
-            'Scanning…',
-            style: TextStyle(color: Colors.white, fontSize: 14),
           ),
         ],
       ),

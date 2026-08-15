@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../api/session.dart';
 import '../../data/mock_data.dart';
 import '../../models/job.dart';
 import '../../theme/app_theme.dart';
@@ -27,7 +28,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = MockData.currentUser;
+    final user = sessionUser(context);
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -44,7 +45,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   radius: 24,
                   backgroundColor: AppTheme.primary,
                   child: Text(
-                    user['initials']!,
+                    user.initials,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -57,7 +58,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user['name']!,
+                      user.name,
                       style: const TextStyle(
                         color: AppTheme.textPrimary,
                         fontSize: 15,
@@ -65,7 +66,7 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
                       ),
                     ),
                     Text(
-                      '${user['role']} • ${user['employeeId']}',
+                      '${user.roleLabel} • ${user.employeeId}',
                       style: const TextStyle(
                         color: AppTheme.textSecondary,
                         fontSize: 12,

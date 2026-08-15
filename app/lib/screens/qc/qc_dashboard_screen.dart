@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../api/session.dart';
 import '../../data/qc_mock_data.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/dashboard_loader.dart';
 import '../../widgets/stat_card.dart';
 import '../reports/pareto_report_screen.dart';
 import 'ncr/ncr_detail_screen.dart';
@@ -10,205 +12,219 @@ class QCDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stats = QCMockData.qcDashboardStats;
-    final user = QCMockData.qcUser;
-    final overdueNcr = QCMockData.ncrs.first;
+    final user = sessionUser(context);
 
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.factory, color: Colors.white, size: 18),
+    return DashboardLoader(
+      role: 'qc',
+      builder: (context, stats) {
+        final overdueNcr = QCMockData.ncrs.first;
+
+        return Scaffold(
+          backgroundColor: AppTheme.background,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            titleSpacing: 16,
+            title: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.factory,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'FloorPulse',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'FloorPulse',
-              style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppTheme.primary,
-              child: Text(
-                user.initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppTheme.primary,
+                  child: Text(
+                    user.initials,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Greeting card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primary,
+                        AppTheme.primary.withValues(alpha: 0.7),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Good ${_greeting()}, ${user.firstName}!',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Quality Control',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.verified_outlined,
+                          color: Colors.white,
+                          size: 26,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Stats grid
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        title: 'Inspections Today',
+                        value: kpiText(stats, 'inspectionsToday'),
+                        icon: Icons.fact_check_outlined,
+                        color: AppTheme.success,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: StatCard(
+                        title: 'NCRs Raised',
+                        value: kpiText(stats, 'ncrsRaised'),
+                        icon: Icons.report_problem_outlined,
+                        color: AppTheme.danger,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        title: 'Pass Rate',
+                        value: '${kpiText(stats, 'passRatePct')}%',
+                        icon: Icons.verified_outlined,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: StatCard(
+                        title: 'Pending Queue',
+                        value: kpiText(stats, 'pendingQueue'),
+                        icon: Icons.hourglass_top_outlined,
+                        color: AppTheme.warning,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Quality Metrics section
+                _sectionHeader('Quality Metrics'),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ParetoReportScreen(),
+                    ),
+                  ),
+                  child: _MetricCard(
+                    icon: Icons.bar_chart_outlined,
+                    iconColor: AppTheme.warning,
+                    title: 'Rejection Rate',
+                    value: '${kpiText(stats, 'rejectionPct')}%',
+                    subtitle: 'Tap to view Pareto analysis',
+                    valueColor: AppTheme.warning,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => NCRDetailScreen(ncr: overdueNcr),
+                    ),
+                  ),
+                  child: _MetricCard(
+                    icon: Icons.timer_off_outlined,
+                    iconColor: AppTheme.danger,
+                    title: 'Overdue CAPAs',
+                    value: kpiText(stats, 'overdueCapas'),
+                    subtitle: 'Tap to view NCR details',
+                    valueColor: AppTheme.danger,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Recent NCRs
+                _sectionHeader('Recent NCRs'),
+                const SizedBox(height: 12),
+                ...QCMockData.ncrs.take(3).map((ncr) => _NCRListTile(ncr: ncr)),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Greeting card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primary,
-                    AppTheme.primary.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Good ${_greeting()}, ${user.name.split(' ').first}!',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Quality Control',
-                          style: TextStyle(color: Colors.white70, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.verified_outlined,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Stats grid
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: 'Inspections Today',
-                    value: '${stats['inspectionsToday']}',
-                    icon: Icons.fact_check_outlined,
-                    color: AppTheme.success,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatCard(
-                    title: 'NCRs Raised',
-                    value: '${stats['ncrsRaised']}',
-                    icon: Icons.report_problem_outlined,
-                    color: AppTheme.danger,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: 'Pass Rate',
-                    value: '${stats['passRatePct']}%',
-                    icon: Icons.verified_outlined,
-                    color: AppTheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatCard(
-                    title: 'Pending Queue',
-                    value: '${stats['pendingQueue']}',
-                    icon: Icons.hourglass_top_outlined,
-                    color: AppTheme.warning,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Quality Metrics section
-            _sectionHeader('Quality Metrics'),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ParetoReportScreen()),
-              ),
-              child: _MetricCard(
-                icon: Icons.bar_chart_outlined,
-                iconColor: AppTheme.warning,
-                title: 'Rejection Rate',
-                value: '${stats['rejectionPct']}%',
-                subtitle: 'Tap to view Pareto analysis',
-                valueColor: AppTheme.warning,
-              ),
-            ),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => NCRDetailScreen(ncr: overdueNcr),
-                ),
-              ),
-              child: _MetricCard(
-                icon: Icons.timer_off_outlined,
-                iconColor: AppTheme.danger,
-                title: 'Overdue CAPAs',
-                value: '${stats['overdueCapas']}',
-                subtitle: 'Tap to view NCR details',
-                valueColor: AppTheme.danger,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Recent NCRs
-            _sectionHeader('Recent NCRs'),
-            const SizedBox(height: 12),
-            ...QCMockData.ncrs.take(3).map((ncr) => _NCRListTile(ncr: ncr)),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 

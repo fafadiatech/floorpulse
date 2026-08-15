@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../api/session.dart';
 import '../../../data/sales_mock_data.dart';
 import '../../../theme/app_theme.dart';
-import '../../auth/login_screen.dart';
 import 'quotations_screen.dart';
 import 'leads_screen.dart';
 
@@ -10,7 +10,7 @@ class SalesMoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = SalesMockData.salesUser;
+    final user = sessionUser(context);
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -135,11 +135,7 @@ class SalesMoreScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    (_) => false,
-                  ),
+                  onPressed: () => confirmLogout(context),
                   icon: const Icon(Icons.logout, color: AppTheme.danger),
                   label: const Text(
                     'Log Out',

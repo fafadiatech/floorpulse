@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../api/session.dart';
 import '../../../data/sales_mock_data.dart';
 import '../../../models/customer_visit.dart';
 import '../../../models/sales_approval.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/date_utils.dart';
+import '../../../widgets/dashboard_loader.dart';
 import '../../../widgets/stat_card.dart';
 import '../visits/checkin_screen.dart';
 import 'approval_detail_screen.dart';
@@ -13,250 +15,262 @@ class SalesDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stats = SalesMockData.dashboardStats;
-    final user = SalesMockData.salesUser;
-    final approvals = SalesMockData.approvals
-        .where((a) => a.status == ApprovalStatus.pending)
-        .toList();
-    final visits = SalesMockData.todayVisits;
-    final collectionPct =
-        (stats['collectionMTD'] as double) / (stats['targetMTD'] as double);
+    final user = sessionUser(context);
 
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.factory, color: Colors.white, size: 18),
+    return DashboardLoader(
+      role: 'sales',
+      builder: (context, stats) {
+        final approvals = SalesMockData.approvals
+            .where((a) => a.status == ApprovalStatus.pending)
+            .toList();
+        final visits = SalesMockData.todayVisits;
+        final collection = kpiDouble(stats, 'collectionMTD');
+        final target = kpiDouble(stats, 'targetMTD');
+        final collectionPct = target == 0 ? 0.0 : collection / target;
+
+        return Scaffold(
+          backgroundColor: AppTheme.background,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            titleSpacing: 16,
+            title: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.factory,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'FloorPulse',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'FloorPulse',
-              style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AppTheme.primary,
-              child: Text(
-                user.initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: CircleAvatar(
+                  radius: 16,
+                  backgroundColor: AppTheme.primary,
+                  child: Text(
+                    user.initials,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Greeting
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primary,
-                    AppTheme.primary.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${AppDateUtils.greeting()}, ${user.name.split(' ').first}!',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          AppDateUtils.fullDate(DateTime.now()),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Collection progress
-                        Row(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Greeting
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primary,
+                        AppTheme.primary.withValues(alpha: 0.7),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'MTD Collection:',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 11,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _fmt(stats['collectionMTD'] as double),
+                              '${AppDateUtils.greeting()}, ${user.firstName}!',
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
+                            const SizedBox(height: 4),
                             Text(
-                              ' / ${_fmt(stats['targetMTD'] as double)}',
+                              AppDateUtils.fullDate(DateTime.now()),
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 11,
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Collection progress
+                            Row(
+                              children: [
+                                Text(
+                                  'MTD Collection:',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _fmt(collection),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  ' / ${_fmt(target)}',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: LinearProgressIndicator(
+                                value: collectionPct.clamp(0.0, 1.0),
+                                minHeight: 5,
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.2,
+                                ),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(3),
-                          child: LinearProgressIndicator(
-                            value: collectionPct.clamp(0.0, 1.0),
-                            minHeight: 5,
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.2,
-                            ),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.trending_up,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Stats
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: "Today's Visits",
-                    value: '${stats['todayVisits']}',
-                    icon: Icons.place_outlined,
-                    color: AppTheme.primary,
+                        child: const Icon(
+                          Icons.trending_up,
+                          color: Colors.white,
+                          size: 26,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatCard(
+                const SizedBox(height: 20),
+
+                // Stats
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        title: "Today's Visits",
+                        value: kpiText(stats, 'todayVisits'),
+                        icon: Icons.place_outlined,
+                        color: AppTheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: StatCard(
+                        title: 'Pending Approvals',
+                        value: kpiText(stats, 'pendingApprovals'),
+                        icon: Icons.pending_actions_outlined,
+                        color: AppTheme.warning,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        title: 'Open Orders',
+                        value: kpiText(stats, 'openOrders'),
+                        icon: Icons.receipt_long_outlined,
+                        color: AppTheme.success,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: StatCard(
+                        title: 'On Hold',
+                        value: '1',
+                        icon: Icons.pause_circle_outline,
+                        color: AppTheme.danger,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Pending Approvals
+                if (approvals.isNotEmpty) ...[
+                  _SectionHeader(
                     title: 'Pending Approvals',
-                    value: '${stats['pendingApprovals']}',
-                    icon: Icons.pending_actions_outlined,
-                    color: AppTheme.warning,
+                    count: approvals.length,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: 'Open Orders',
-                    value: '${stats['openOrders']}',
-                    icon: Icons.receipt_long_outlined,
-                    color: AppTheme.success,
+                  const SizedBox(height: 10),
+                  ...approvals.map(
+                    (ap) => _ApprovalCard(
+                      approval: ap,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ApprovalDetailScreen(approval: ap),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatCard(
-                    title: 'On Hold',
-                    value: '1',
-                    icon: Icons.pause_circle_outline,
-                    color: AppTheme.danger,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
+                  const SizedBox(height: 20),
+                ],
 
-            // Pending Approvals
-            if (approvals.isNotEmpty) ...[
-              _SectionHeader(
-                title: 'Pending Approvals',
-                count: approvals.length,
-              ),
-              const SizedBox(height: 10),
-              ...approvals.map(
-                (ap) => _ApprovalCard(
-                  approval: ap,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ApprovalDetailScreen(approval: ap),
+                // Today's Visits
+                _SectionHeader(title: "Today's Visits", count: visits.length),
+                const SizedBox(height: 10),
+                ...visits.map(
+                  (v) => _VisitCard(
+                    visit: v,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CheckInScreen(visit: v),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
-
-            // Today's Visits
-            _SectionHeader(title: "Today's Visits", count: visits.length),
-            const SizedBox(height: 10),
-            ...visits.map(
-              (v) => _VisitCard(
-                visit: v,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CheckInScreen(visit: v)),
-                ),
-              ),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

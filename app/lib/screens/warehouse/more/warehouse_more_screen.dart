@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../api/session.dart';
 import '../../../data/warehouse_mock_data.dart';
 import '../../../theme/app_theme.dart';
-import '../../auth/login_screen.dart';
 import '../../qc/scan/traceability_tree_screen.dart';
 import '../../qc/scan/stock_ledger_screen.dart';
 import '../stock/warehouse_browser_screen.dart';
@@ -13,7 +13,7 @@ class WarehouseMoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = WarehouseMockData.warehouseUser;
+    final user = sessionUser(context);
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -186,11 +186,7 @@ class WarehouseMoreScreen extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    (_) => false,
-                  ),
+                  onPressed: () => confirmLogout(context),
                   icon: const Icon(Icons.logout, color: AppTheme.danger),
                   label: const Text(
                     'Log Out',

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../api/frappe_exception.dart';
+import '../../api/session.dart';
 import '../../theme/app_theme.dart';
-import '../home/home_screen.dart';
-import '../qc/qc_home_screen.dart';
-import '../warehouse/warehouse_home_screen.dart';
-import '../sales/sales_home_screen.dart';
-import '../maintenance/maintenance_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _signIn() {
+  Future<void> _signIn() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
@@ -38,42 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => _isLoading = true);
-
-    Future.delayed(const Duration(milliseconds: 600), () {
+    try {
+      await context.read<SessionController>().login(username, password);
+    } on FrappeException catch (e) {
       if (!mounted) return;
-      setState(() => _isLoading = false);
-
-      if (username == 'production' && password == 'prod123') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      } else if (username == 'qc' && password == 'qc123') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const QCHomeScreen()),
-        );
-      } else if (username == 'warehouse' && password == 'wh123') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const WarehouseHomeScreen()),
-        );
-      } else if (username == 'sales' && password == 'sales123') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SalesHomeScreen()),
-        );
-      } else if (username == 'maintenance' && password == 'maint123') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MaintenanceHomeScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Invalid credentials')));
-      }
-    });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override

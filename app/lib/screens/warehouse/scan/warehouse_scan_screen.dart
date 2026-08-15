@@ -1,81 +1,32 @@
 import 'package:flutter/material.dart';
-import '../../../data/warehouse_mock_data.dart';
+import '../../../api/scan_navigator.dart';
 import '../../../theme/app_theme.dart';
-import '../grn/grn_list_screen.dart';
-import '../stock/stock_screen.dart';
-import '../stock/bin_contents_screen.dart';
 
-class WarehouseScanScreen extends StatelessWidget {
+class WarehouseScanScreen extends StatefulWidget {
   const WarehouseScanScreen({super.key});
 
-  void _showScanDialog(
-    BuildContext context,
-    String type,
-    VoidCallback onScanned,
-  ) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Scan $type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.divider),
-              ),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.qr_code_scanner,
-                      size: 48,
-                      color: AppTheme.textSecondary,
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Camera preview',
-                      style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Point camera at barcode/QR code',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              onScanned();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-            ),
-            child: const Text('Simulate Scan'),
-          ),
-        ],
-      ),
-    );
+  @override
+  State<WarehouseScanScreen> createState() => _WarehouseScanScreenState();
+}
+
+class _WarehouseScanScreenState extends State<WarehouseScanScreen> {
+  final _codeController = TextEditingController();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await resolveAndOpenScan(context, _codeController.text);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -91,7 +42,6 @@ class WarehouseScanScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Scanner viewport
             Expanded(
               flex: 2,
               child: Container(
@@ -106,35 +56,44 @@ class WarehouseScanScreen extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    const Center(
+                    Padding(
+                      padding: const EdgeInsets.all(24),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.qr_code_scanner,
                             size: 64,
                             color: Colors.white54,
                           ),
-                          SizedBox(height: 12),
-                          Text(
-                            'Tap an option below to scan',
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Enter a barcode, PO, bin, or item code',
                             style: TextStyle(
                               color: Colors.white54,
                               fontSize: 14,
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          ScanCodeField(
+                            controller: _codeController,
+                            onSubmit: _submit,
+                          ),
                         ],
                       ),
                     ),
-                    // Corner indicators
-                    Positioned(top: 16, left: 16, child: _Corner()),
-                    Positioned(top: 16, right: 16, child: _Corner(flipH: true)),
-                    Positioned(
+                    const Positioned(top: 16, left: 16, child: _Corner()),
+                    const Positioned(
+                      top: 16,
+                      right: 16,
+                      child: _Corner(flipH: true),
+                    ),
+                    const Positioned(
                       bottom: 16,
                       left: 16,
                       child: _Corner(flipV: true),
                     ),
-                    Positioned(
+                    const Positioned(
                       bottom: 16,
                       right: 16,
                       child: _Corner(flipH: true, flipV: true),
@@ -143,8 +102,6 @@ class WarehouseScanScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Options
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -157,15 +114,7 @@ class WarehouseScanScreen extends StatelessWidget {
                             icon: Icons.local_shipping_outlined,
                             label: 'Scan GRN / PO',
                             sublabel: 'Receive goods',
-                            onTap: () =>
-                                _showScanDialog(context, 'Barcode', () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const GRNListScreen(),
-                                    ),
-                                  );
-                                }),
+                            onTap: _busy ? null : _submit,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -174,17 +123,7 @@ class WarehouseScanScreen extends StatelessWidget {
                             icon: Icons.shelves,
                             label: 'Scan Bin',
                             sublabel: 'View contents',
-                            onTap: () =>
-                                _showScanDialog(context, 'Bin Label', () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => BinContentsScreen(
-                                        bin: WarehouseMockData.bins.first,
-                                      ),
-                                    ),
-                                  );
-                                }),
+                            onTap: _busy ? null : _submit,
                           ),
                         ),
                       ],
@@ -196,15 +135,7 @@ class WarehouseScanScreen extends StatelessWidget {
                         icon: Icons.inventory_2_outlined,
                         label: 'Scan Item / Batch',
                         sublabel: 'Check stock across all bins',
-                        onTap: () =>
-                            _showScanDialog(context, 'Item Barcode', () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const StockScreen(),
-                                ),
-                              );
-                            }),
+                        onTap: _busy ? null : _submit,
                       ),
                     ),
                   ],
@@ -255,12 +186,12 @@ class _ScanOption extends StatelessWidget {
   final IconData icon;
   final String label;
   final String sublabel;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   const _ScanOption({
     required this.icon,
     required this.label,
     required this.sublabel,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
