@@ -127,6 +127,7 @@ Login: `Administrator` / the `ADMIN_PASSWORD` you set in `.env`.
 | `make seed` | Re-seed demo data (idempotent). Creates company **FloorPulse Demo** via the ERPNext setup wizard if the site has none. |
 | `make test` | Run helper unit tests (pytest, no bench) |
 | `make test-api` | Run FloorPulse API integration tests inside Docker (`bench run-tests`) |
+| `flutter run` from `app/` | Run the mobile app against the local site (see [Running the Flutter app](#running-the-flutter-app)) |
 
 ---
 
@@ -143,7 +144,7 @@ Both commands prompt for confirmation before executing.
 
 ## REST API
 
-Same principle as custom DocTypes: FloorPulse adds only what Frappe/ERPNext does not already provide. The Flutter app is mock-only. Connecting it should default to `/api/resource/<DocType>` plus existing Frappe/ERPNext methods — not a parallel API layer. Custom whitelist methods live in `floorpulse/api/` and cover only aggregations or atomic multi-doc posting.
+Same principle as custom DocTypes: FloorPulse adds only what Frappe/ERPNext does not already provide. The Flutter app uses `/api/resource/<DocType>` plus existing Frappe/ERPNext methods — not a parallel API layer. Custom whitelist methods live in `floorpulse/api/` and cover only aggregations or atomic multi-doc posting. Auth, dashboards, and scan are live; list/detail CRUD is still mock (phases 4–8).
 
 Primary client: shop-floor mobile / PWA.
 
@@ -286,7 +287,7 @@ flowchart TD
 | Resource CRUD | **Live** for all 14 FloorPulse DocTypes and the ERPNext types the app maps to |
 | Whitelist methods in `floorpulse/api/` | **Implemented** — nine original wrappers plus B1 hardening and B2 aggregations (see contracts below) |
 | Wrapper hardening, aggregations, notification hooks, API tests | **Implemented** (Phases B1–B3) |
-| Flutter HTTP client | **Mock-only** (Phase B4 / Flutter plan below) |
+| Flutter HTTP client | **Live** for B4 phases 0–3 (auth, dashboards, scan). List/detail CRUD still mock until phases 4–8 |
 
 Helper unit tests: `floorpulse/api/test_api_helpers.py` (`make test`). Integration tests: `floorpulse/api/test_api.py` (`make test-api`).
 
@@ -517,9 +518,9 @@ Coming-soon Flutter snackbars (scorecard, calibration, hold/release **UI**, retu
 
 Phase B4 of the API plan: wire the mock app to the APIs above. No Python in this phase.
 
-The Flutter app in `app/` is mock-only. Login hardcodes demo usernames in `app/lib/screens/auth/login_screen.dart`. Screens import `*_mock_data.dart` directly. There is no HTTP client, no session, and no `INTERNET` permission in `app/android/app/src/main/AndroidManifest.xml`.
+**Implemented (phases 0–3):** HTTP client, login/logout + `get_session`, five role dashboards (`dashboard.get`), and scan (`scan.resolve`). List/detail screens still import `*_mock_data.dart` until phases 4–8. `--dart-define=USE_MOCK=true` restores the old login/KPI/scan path.
 
-Connect the app to the APIs above. Do not add a parallel API layer. Default to `/api/resource/<DocType>` and existing Frappe/ERPNext methods. Call FloorPulse whitelist methods for the nine live wrappers plus B1/B2 additions (`customer_ledger`, `fulfilment_timeline`, `traceability`, `dispatch`).
+Do not add a parallel API layer. Default to `/api/resource/<DocType>` and existing Frappe/ERPNext methods. Call FloorPulse whitelist methods for the live wrappers plus B1/B2 additions (`customer_ledger`, `fulfilment_timeline`, `traceability`, `dispatch`).
 
 ### Current state → target
 
@@ -533,48 +534,69 @@ flowchart LR
   Shell -->|"whitelist methods"| CustomAPI
 ```
 
-Keep mock data behind `--dart-define=USE_MOCK=true` during the cutover. Drop the mock import for a shell once that phase is live.
+Auth, dashboards, and scan follow the left path today. Resource CRUD (right branch) is still mock until phases 4–8. Drop the mock import for a shell once that phase is live.
 
-### Client foundation
+### Running the Flutter app
 
-Suggested packages: `dio` + `cookie_jar` + `dio_cookie_manager` (Frappe `sid` cookie) and `provider` for session. Do not introduce Riverpod or Bloc unless a later need appears.
+Backend must be up (`make start`) with seed users. From `app/`:
 
-Base URL: `--dart-define=FRAPPE_URL=http://floorpulse.localhost:8080` on the simulator. Use the machine LAN IP for a physical device.
+```bash
+# iOS simulator / macOS (site in /etc/hosts)
+flutter run --dart-define=FRAPPE_URL=http://floorpulse.localhost:8080
 
-Platform:
+# Mock login, KPIs, and scan (no backend)
+flutter run --dart-define=USE_MOCK=true
+```
 
-- Android: `INTERNET` permission and cleartext HTTP for localhost.
-- iOS: ATS exception for local HTTP.
+Frappe is hostname-based (`floorpulse.localhost`):
+
+- **iOS simulator / macOS:** default URL works if `127.0.0.1 floorpulse.localhost` is in `/etc/hosts`.
+- **Android emulator:** `adb reverse tcp:8080 tcp:8080` and the same URL, or `FRAPPE_URL=http://10.0.2.2:8080` plus `--dart-define=FRAPPE_HOST=floorpulse.localhost` (the client sets the `Host` header when the URL is an IP).
+- **Physical device:** machine LAN IP + `FRAPPE_HOST=floorpulse.localhost`.
+
+Demo logins: `production` / `prod123`, `qc` / `qc123`, `warehouse` / `wh123`, `sales` / `sales123`, `maintenance` / `maint123`.
+
+### Client foundation (Implemented)
+
+Packages: `dio` + `cookie_jar` + `dio_cookie_manager` (Frappe `sid` cookie) and `provider` for session. Do not introduce Riverpod or Bloc unless a later need appears.
+
+Base URL: `--dart-define=FRAPPE_URL=...` (default `http://floorpulse.localhost:8080`). Optional `FRAPPE_HOST` when the URL is an IP.
+
+Platform: Android `INTERNET` + cleartext HTTP; iOS ATS exception / local networking.
 
 Error mapping: `frappe.throw` / `_server_messages` → snackbar. Screens keep UI; they stop importing `*_mock_data.dart` once that shell's phase is done.
 
-Suggested layout (not created yet):
+Layout:
 
 ```
+app/lib/api/config.dart             # FRAPPE_URL, FRAPPE_HOST, USE_MOCK
 app/lib/api/frappe_client.dart      # Dio + cookie jar, login/logout, method POST
+app/lib/api/frappe_exception.dart   # _server_messages → snackbar string
 app/lib/api/session.dart            # get_session → AppUser / primary_role
-app/lib/api/resource.dart           # GET/POST/PUT /api/resource/<DocType>
-app/lib/api/floorpulse_api.dart     # dashboard, scan, execute_task, start_job, ledger, …
+app/lib/api/floorpulse_api.dart     # dashboard, scan (more methods in later phases)
+app/lib/api/scan_navigator.dart     # scan.resolve → stub-model navigation
 ```
+
+`resource.dart` (GET/POST/PUT `/api/resource/<DocType>`) is deferred to phase 4.
 
 ### Phased screen-to-API map
 
-#### Phase 0 — Foundation (no UI change)
+#### Phase 0 — Foundation (Implemented)
 
-`FrappeClient`, cookie jar, `fromJson` on models, error mapping. No screen wiring yet.
+`FrappeClient`, cookie jar, `AppUser.fromSession`, error mapping.
 
-#### Phase 1 — Auth
+#### Phase 1 — Auth (Implemented)
 
 | Screen | Call | Replaces |
 |---|---|---|
 | `screens/auth/login_screen.dart` | `POST /api/method/login` then `floorpulse.api.auth.get_session` | Hardcoded username/password switch |
 | More screens (all five shells) | `POST /api/method/logout` | Local `Navigator` pop to login |
 
-Route `primary_role` to the existing homes: `production` → `HomeScreen`, `qc` → `QCHomeScreen`, `warehouse` → `WarehouseHomeScreen`, `sales` → `SalesHomeScreen`, `maintenance` → `MaintenanceHomeScreen`. Demo users already match seed (`production` / `qc` / `warehouse` / `sales` / `maintenance`).
+Route `primary_role` to the existing homes: `production` → `HomeScreen`, `qc` → `QCHomeScreen`, `warehouse` → `WarehouseHomeScreen`, `sales` → `SalesHomeScreen`, `maintenance` → `MaintenanceHomeScreen`. Demo users already match seed (`production` / `qc` / `warehouse` / `sales` / `maintenance`). Persisted `sid` restores the session on launch.
 
-#### Phase 2 — Dashboards
+#### Phase 2 — Dashboards (Implemented)
 
-KPI keys on the five dashboards already match `floorpulse.api.dashboard.get`. One call per shell (`role` optional; defaults to `primary_role`). After B1, every payload also has `unreadNotifications`.
+KPI keys on the five dashboards already match `floorpulse.api.dashboard.get`. One call per shell (`role` optional; defaults to `primary_role`). Every payload also has `unreadNotifications`. List widgets (recent work orders, NCRs, visits, jobs) stay on mock until later phases.
 
 | Screen | Keys already used |
 |---|---|
@@ -584,11 +606,9 @@ KPI keys on the five dashboards already match `floorpulse.api.dashboard.get`. On
 | `screens/sales/dashboard/sales_dashboard_screen.dart` | `todayVisits`, `pendingApprovals`, `openOrders`, `collectionMTD`, `targetMTD` |
 | `screens/maintenance/dashboard/maintenance_dashboard_screen.dart` | `machinesDown`, `overduePM`, `mttr`, `sparesLow` |
 
-Drop `MockData.dashboardStats`, `QCMockData.qcDashboardStats`, and the other `dashboardStats` maps.
+#### Phase 3 — Scan (Implemented)
 
-#### Phase 3 — Scan
-
-All scan screens call `floorpulse.api.scan.resolve` with the scanned `code`, then navigate by `doctype`:
+All scan screens call `floorpulse.api.scan.resolve` with an entered `code` (no camera plugin), then navigate by `doctype`. Detail screens open with a **minimal stub** from `{name, label}` until Resource GET in later phases.
 
 | `doctype` | Open |
 |---|---|
@@ -598,13 +618,13 @@ All scan screens call `floorpulse.api.scan.resolve` with the scanned `code`, the
 | Asset Repair | job execution |
 | Quality Inspection | inspection detail |
 | NCR | NCR detail |
-| Purchase Order | GRN / PO detail |
+| Purchase Order | GRN / PO list |
 | Gate Entry | gate form / list |
 | Bin | bin contents |
 | Warehouse Task | matching task flow |
-| Item / Batch / Serial No | stock / `qc.traceability` |
+| Item / Batch / Serial No | stock / `qc.traceability` (tree still mock until phase 5) |
 
-Screens: `screens/scan/scan_screen.dart`, `screens/qc/scan/qc_scan_screen.dart`, `screens/warehouse/scan/warehouse_scan_screen.dart`, `screens/maintenance/scan/maintenance_scan_screen.dart`. Production scan should open WO / Job Card detail (today it shows a hardcoded sheet).
+Screens: `screens/scan/scan_screen.dart`, `screens/qc/scan/qc_scan_screen.dart`, `screens/warehouse/scan/warehouse_scan_screen.dart`, `screens/maintenance/scan/maintenance_scan_screen.dart`.
 
 #### Phase 4 — Production
 
