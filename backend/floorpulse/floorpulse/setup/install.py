@@ -2,6 +2,7 @@ import frappe
 
 
 def after_install():
+    _configure_system_settings()
     _create_custom_fields()
     _delete_obsolete_custom_fields()
     _reload_floorpulse_workspace()
@@ -9,17 +10,46 @@ def after_install():
 
 
 def after_migrate():
+    _configure_system_settings()
     _create_custom_fields()
     _delete_obsolete_custom_fields()
     _reload_floorpulse_workspace()
     _hide_other_workspaces()
 
 
+def _configure_system_settings():
+    """Allow short demo usernames (production, qc, …) and skip password policy."""
+    if not frappe.db.exists("DocType", "System Settings"):
+        return
+    frappe.db.set_single_value("System Settings", "enable_password_policy", 0)
+    frappe.db.set_single_value("System Settings", "allow_login_using_user_name", 1)
+    frappe.db.commit()
+
+
 def _reload_floorpulse_workspace():
     """Re-import the FloorPulse workspace JSON so Desk cards stay in sync."""
     frappe.reload_doc("FloorPulse", "workspace", "floorpulse", force=True)
+    if not _workspace_has_layout():
+        if frappe.db.exists("Workspace", "FloorPulse"):
+            frappe.delete_doc(
+                "Workspace", "FloorPulse", force=1, ignore_permissions=True
+            )
+        frappe.reload_doc("FloorPulse", "workspace", "floorpulse", force=True)
     if frappe.db.exists("Workspace", "FloorPulse"):
         frappe.db.set_value("Workspace", "FloorPulse", "is_hidden", 0)
+        frappe.db.set_value("Workspace", "FloorPulse", "public", 1)
+    frappe.clear_cache()
+
+
+def _workspace_has_layout():
+    if not frappe.db.exists("Workspace", "FloorPulse"):
+        return False
+    content = frappe.db.get_value("Workspace", "FloorPulse", "content") or "[]"
+    if content.strip() in ("", "[]"):
+        return False
+    n_links = frappe.db.count("Workspace Link", {"parent": "FloorPulse"})
+    n_shortcuts = frappe.db.count("Workspace Shortcut", {"parent": "FloorPulse"})
+    return n_links > 0 and n_shortcuts > 0
 
 
 def _hide_other_workspaces():

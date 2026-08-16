@@ -1,16 +1,15 @@
 {
  "charts": [],
- "content": "[{\"id\":\"fp-header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">FloorPulse</span>\",\"col\":12}},{\"id\":\"fp-card-sales\",\"type\":\"card\",\"data\":{\"card_name\":\"Sales\",\"col\":4}},{\"id\":\"fp-card-maintenance\",\"type\":\"card\",\"data\":{\"card_name\":\"Maintenance\",\"col\":4}},{\"id\":\"fp-card-warehouse\",\"type\":\"card\",\"data\":{\"card_name\":\"Warehouse\",\"col\":4}},{\"id\":\"fp-card-qc\",\"type\":\"card\",\"data\":{\"card_name\":\"Quality Control\",\"col\":4}},{\"id\":\"fp-card-production\",\"type\":\"card\",\"data\":{\"card_name\":\"Production\",\"col\":4}},{\"id\":\"fp-card-alerts\",\"type\":\"card\",\"data\":{\"card_name\":\"Alerts\",\"col\":4}}]",
+ "content": "[{\"id\":\"fp-header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">FloorPulse</span>\",\"col\":12}},{\"id\":\"fp-shortcuts-header\",\"type\":\"header\",\"data\":{\"text\":\"Shortcuts\",\"col\":12}},{\"id\":\"fp-sc-visit\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Visit\",\"col\":3}},{\"id\":\"fp-sc-wh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warehouse Task\",\"col\":3}},{\"id\":\"fp-sc-ncr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"NCR\",\"col\":3}},{\"id\":\"fp-sc-qi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quality Inspection\",\"col\":3}},{\"id\":\"fp-sc-repair\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Asset Repair\",\"col\":3}},{\"id\":\"fp-sc-wo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Work Order\",\"col\":3}},{\"id\":\"fp-sc-gate\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gate Entry\",\"col\":3}},{\"id\":\"fp-sc-alert\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"FloorPulse Notification\",\"col\":3}},{\"id\":\"fp-spacer\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"fp-cards-header\",\"type\":\"header\",\"data\":{\"text\":\"Masters & Reports\",\"col\":12}},{\"id\":\"fp-card-sales\",\"type\":\"card\",\"data\":{\"card_name\":\"Sales\",\"col\":4}},{\"id\":\"fp-card-maintenance\",\"type\":\"card\",\"data\":{\"card_name\":\"Maintenance\",\"col\":4}},{\"id\":\"fp-card-warehouse\",\"type\":\"card\",\"data\":{\"card_name\":\"Warehouse\",\"col\":4}},{\"id\":\"fp-card-qc\",\"type\":\"card\",\"data\":{\"card_name\":\"Quality Control\",\"col\":4}},{\"id\":\"fp-card-production\",\"type\":\"card\",\"data\":{\"card_name\":\"Production\",\"col\":4}},{\"id\":\"fp-card-alerts\",\"type\":\"card\",\"data\":{\"card_name\":\"Alerts\",\"col\":4}}]",
  "creation": "2024-01-01 00:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
- "extends": null,
- "extends_another_page": 0,
- "for_user": null,
+ "for_user": "",
  "hide_custom": 0,
  "icon": "building",
  "idx": 0,
+ "indicator_color": "",
  "is_hidden": 0,
  "label": "FloorPulse",
  "links": [
@@ -393,20 +392,67 @@
    "type": "Link"
   }
  ],
- "modified": "2026-08-15 21:47:00.000000",
+ "modified": "2026-08-16 09:52:00.000000",
  "modified_by": "Administrator",
  "module": "FloorPulse",
  "name": "FloorPulse",
  "number_cards": [],
- "onboarding": null,
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "restrict_to_domain": null,
+ "restrict_to_domain": "",
  "roles": [],
  "sequence_id": 1.0,
- "shortcuts": [],
- "title": "FloorPulse",
- "type": "Custom"
+ "shortcuts": [
+  {
+   "doc_view": "List",
+   "label": "Customer Visit",
+   "link_to": "Customer Visit",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Warehouse Task",
+   "link_to": "Warehouse Task",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "NCR",
+   "link_to": "NCR",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Quality Inspection",
+   "link_to": "Quality Inspection",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Asset Repair",
+   "link_to": "Asset Repair",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Work Order",
+   "link_to": "Work Order",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "Gate Entry",
+   "link_to": "Gate Entry",
+   "type": "DocType"
+  },
+  {
+   "doc_view": "List",
+   "label": "FloorPulse Notification",
+   "link_to": "FloorPulse Notification",
+   "type": "DocType"
+  }
+ ],
+ "title": "FloorPulse"
 }

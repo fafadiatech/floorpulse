@@ -7,9 +7,11 @@ Run via:  make seed
 import frappe
 from frappe.utils import add_days, add_months, add_to_date, now_datetime, today
 
+from floorpulse.setup.install import _configure_system_settings
+
 
 def seed():
-    _disable_password_policy()
+    _configure_system_settings()
     _ensure_company()
     _ensure_uom_and_item_group()
     _seed_customers()
@@ -36,12 +38,6 @@ def seed():
     _seed_warehouse_tasks()
     frappe.db.commit()
     frappe.msgprint("FloorPulse seed data loaded successfully.")
-
-
-def _disable_password_policy():
-    if frappe.db.exists("DocType", "System Settings"):
-        frappe.db.set_single_value("System Settings", "enable_password_policy", 0)
-        frappe.db.commit()
 
 
 def _ensure_company():

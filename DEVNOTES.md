@@ -129,6 +129,51 @@ Login: `Administrator` / the `ADMIN_PASSWORD` you set in `.env`.
 | `make test-api` | Run FloorPulse API integration tests inside Docker (`bench run-tests`) |
 | `flutter run` from `app/` | Run the mobile app against the local site (see [Running the Flutter app](#running-the-flutter-app)) |
 
+### Docker workers and image rebuilds
+
+`queue-short` and `queue-long` follow [frappe_docker](https://github.com/frappe/frappe_docker): one RQ process per container.
+
+```yaml
+queue-short:
+  command: bench worker --queue short,default
+queue-long:
+  command: bench worker --queue long,default,short
+```
+
+`bench worker` does **not** accept `--num-workers`. That flag belongs to `bench worker-pool`. Passing it to `bench worker` exits with code 2 (`Error: No such option: --num-workers`) and Compose restart-loops the containers.
+
+After changing worker commands in `docker-compose.yml`:
+
+```bash
+docker compose --project-name floorpulse up -d --force-recreate queue-short queue-long
+```
+
+Confirm they stay up and are listening:
+
+```bash
+docker compose --project-name floorpulse ps
+docker compose --project-name floorpulse logs --tail=20 queue-short queue-long
+make bench CMD="doctor"   # expect "Workers online: 2"
+```
+
+The FloorPulse app is **copied into the image** (`Dockerfile` `COPY …/apps/floorpulse`). Changing files under `backend/floorpulse` (including `patches.txt`) does not affect running containers until you rebuild:
+
+```bash
+docker build -t floorpulse-erpnext:v15 .
+docker compose --project-name floorpulse up -d --force-recreate --no-deps \
+  backend websocket queue-short queue-long scheduler frontend
+```
+
+`make build` does the same image build with `--no-cache`. `patches.txt` must include both Frappe v15 sections or `bench new-site` / `install-app floorpulse` fails with `KeyError: 'pre_model_sync'`:
+
+```
+[pre_model_sync]
+
+[post_model_sync]
+```
+
+If Compose is up but the UI says `floorpulse.localhost does not exist`, the site was never created (or volumes were wiped). Run `make setup-site`, then `make seed` for demo users and data.
+
 ---
 
 ## Danger Zone
